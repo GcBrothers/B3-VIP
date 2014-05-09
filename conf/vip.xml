@@ -1,0 +1,6 @@
+<configuration plugin="vip">
+	<settings name="commands">
+		<!--Admin level-->
+		<set name="vip">20</set>
+	</settings>
+</configuration>

@@ -11,9 +11,9 @@ class VipPlugin(b3.plugin.Plugin):
     _damaged = None
     _random = False
     def OnStartup(self):
-        self.registerEvent(b3.events.EVT_CLIENT_DAMAGE)
-        self.registerEvent(b3.events.EVT_CLIENT_KILL)
-        self.registerEvent(b3.events.EVT_CLIENT_DISCONNECT)
+        self.registerEvent(self.console.getEventID('EVT_CLIENT_DAMAGE'), self.onDamage)
+        self.registerEvent(self.console.getEventID('EVT_CLIENT_KILL'), self.onKill)
+        self.registerEvent(self.console.getEventID('EVT_CLIENT_DISCONNECT'), self.onDisconnect)
         self._adminPlugin = self.console.getPlugin('admin')
 
         if not self._adminPlugin:
@@ -37,25 +37,30 @@ class VipPlugin(b3.plugin.Plugin):
         if self._currentVip == self._damaged.cid:
             self.console.write('slap %s'%(self._damager.cid)) #slap if you hit the VIP
 
-    def chooseRandomVip(self) #to choose another people when dead or random mode launched
+    def chooseRandomVip(self): #to choose another people when dead or random mode launched
         clients[] = self.console.clients.getList()
         i = random.randint(0, len(clients) - 1)
         self._currentVip = clients[i].cid
         clients[i].message('You are the VIP')
 
-    def onEvent(self, event):
-        if event.type == b3.events.EVT_CLIENT_DAMAGE: #get who hits, and who's hit
-            self._damager = event.attacker
-            self._damaged = event.victim
-            self.checkIfVip()
-        elif event.type == b3.events.EVT_CLIENT_KILL: #Checks if random Vip is killed
-            if self._random == True:
-                if event.victim.cid == self._currentVip:
-                    self.chooseRandomVip()
-        elif event.type == b3.events.EVT_CLIENT_DISCONNECT:#Checks if random Vip disconnects
-            if self._random == True:
-                if event.client.cid == self._currentVip:
-                    self.chooseRandomVip()
+#Events
+
+    def onDamage(self, event):
+        self._damager = event.attacker
+        self._damaged = event.victim
+        self.checkIfVip()
+
+    def onKill(self, event):
+        if self._random == True:
+            if event.victim.cid == self._currentVip:
+                self.chooseRandomVip()
+
+    def onDisconnect(self, event):
+        if self._random == True:
+            if event.client.cid == self._currentVip:
+                self.chooseRandomVip()
+
+# Command
 
     def cmd_vip(self, data, client, cmd = None) #when you configure vip mode
         arg = self._adminPlugin.parseUserCmd(data)

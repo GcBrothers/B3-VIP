@@ -2,14 +2,17 @@ import b3
 import b3.plugin
 import b3.events
 import os
+import random
 
 class VipPlugin(b3.plugin.Plugin):
     #Variables
-    currentVip = -1
-    damager = None
-    damaged = None
+    _currentVip = -1
+    _damager = None
+    _damaged = None
+    _random = False
     def OnStartup(self):
         self.registerEvent(b3.events.EVT_CLIENT_DAMAGE)
+        self.registerEvent(b3.events.EVT_CLIENT_KILL)
         self._adminPlugin = self.console.getPlugin('admin')
 
         if not self._adminPlugin:
@@ -29,26 +32,43 @@ class VipPlugin(b3.plugin.Plugin):
                     self._adminPlugin.registerCommand(self, cmd, level, func, alias)
 
     def checkIfVip(self):
-        self.console.say('Attacker %s Attacked %s'%(damager.name, damaged.name)) #debug message
-        if currentVip == damaged.cid
-            self.console.write('slap %s'%(damager.cid)) #slap if you hit VIP
+        self.console.say('Attacker %s Attacked %s'%(self._damager.name, self._damaged.name)) #debug message
+        if self._currentVip == self._damaged.cid
+            self.console.write('slap %s'%(self._damager.cid)) #slap if you hit VIP
+
+    def chooseRandomVip(self) #to choose another people when dead or random mode launched
+        clients[] = self.console.clients.getList()
+        i = random.randint(0, len(clients) - 1)
+        self._currentVip = clients[i].cid
+        clients[i].message('You are the VIP')
+
     def onEvent(self, event):
         if event.type == b3.events.EVT_CLIENT_DAMAGE: #get who hits, and who's hit
-            damager = event.attacker
-            damaged = event.victim
+            self._damager = event.attacker
+            self._damaged = event.victim
             self.checkIfVip()
+        if event.type == b3.events.EVT_CLIENT_KILL
+            if self._random == True
+                if event.victim.cid == self._currentVip
+                    self.chooseRandomVip()
+
+
     def cmd_vip(self, data, client, cmd = None) #when you configure vip mode
         arg = self._adminPlugin.parseUserCmd(data)
         if not arg:
             client.message('^7 Arguments : Client, off or random') #help message if no arguments
-
         #argument = self.getReason(args)
         if arg == 'off': #Turns off vip mode
-            targetClient = -1
-        else: #Tell new Vip
-            targetClient = getClientByName(arg) #or getClientLikeName(argument) ?
+            self._random = False
+            self._currentVip = -1
+        elif arg == 'random' #set random mode
+            self._random = True
+            self.chooseRandomVip()
+        else: #If a player is chosen to be VIP
+            self._random = False
+            targetClient = self.console.clients.getClientByName(arg)
             if targetClient:
-                currentVip = targetClient.cid
+                self._currentVip = targetClient.cid
                 targetClient.message('You are the VIP')
             else:
                 client.message('Unable to find %s'%(arg))

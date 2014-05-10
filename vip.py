@@ -13,6 +13,7 @@ class VipPlugin(b3.plugin.Plugin):
     def OnStartup(self):
         self.registerEvent(b3.events.EVT_CLIENT_DAMAGE)
         self.registerEvent(b3.events.EVT_CLIENT_KILL)
+        self.registerEvent(b3.events.EVT_CLIENT_DISCONNECT)
         self._adminPlugin = self.console.getPlugin('admin')
 
         if not self._adminPlugin:
@@ -33,8 +34,8 @@ class VipPlugin(b3.plugin.Plugin):
 
     def checkIfVip(self):
         self.console.say('Attacker %s Attacked %s'%(self._damager.name, self._damaged.name)) #debug message
-        if self._currentVip == self._damaged.cid
-            self.console.write('slap %s'%(self._damager.cid)) #slap if you hit VIP
+        if self._currentVip == self._damaged.cid:
+            self.console.write('slap %s'%(self._damager.cid)) #slap if you hit the VIP
 
     def chooseRandomVip(self) #to choose another people when dead or random mode launched
         clients[] = self.console.clients.getList()
@@ -47,11 +48,14 @@ class VipPlugin(b3.plugin.Plugin):
             self._damager = event.attacker
             self._damaged = event.victim
             self.checkIfVip()
-        if event.type == b3.events.EVT_CLIENT_KILL
-            if self._random == True
-                if event.victim.cid == self._currentVip
+        elif event.type == b3.events.EVT_CLIENT_KILL: #Checks if random Vip is killed
+            if self._random == True:
+                if event.victim.cid == self._currentVip:
                     self.chooseRandomVip()
-
+        elif event.type == b3.events.EVT_CLIENT_DISCONNECT:#Checks if random Vip disconnects
+            if self._random == True:
+                if event.client.cid == self._currentVip:
+                    self.chooseRandomVip()
 
     def cmd_vip(self, data, client, cmd = None) #when you configure vip mode
         arg = self._adminPlugin.parseUserCmd(data)
@@ -61,7 +65,7 @@ class VipPlugin(b3.plugin.Plugin):
         if arg == 'off': #Turns off vip mode
             self._random = False
             self._currentVip = -1
-        elif arg == 'random' #set random mode
+        elif arg == 'random': #set random mode
             self._random = True
             self.chooseRandomVip()
         else: #If a player is chosen to be VIP

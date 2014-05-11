@@ -38,7 +38,7 @@ class VipPlugin(b3.plugin.Plugin):
             self.console.write('slap %s'%(self._damager.cid)) #slap if you hit the VIP
 
     def chooseRandomVip(self): #to choose another people when dead or random mode launched
-        clients[] = self.console.clients.getList()
+        clients = self.console.clients.getList()
         i = random.randint(0, len(clients) - 1)
         self._currentVip = clients[i].cid
         clients[i].message('You are the VIP')
@@ -75,7 +75,7 @@ class VipPlugin(b3.plugin.Plugin):
             self.chooseRandomVip()
         else: #If a player is chosen to be VIP
             self._random = False
-            targetClient = self.console.clients.getClientByName(arg)
+            targetClient = self._adminPlugin.findClientPrompt(arg, client)
             if targetClient:
                 self._currentVip = targetClient.cid
                 targetClient.message('You are the VIP')

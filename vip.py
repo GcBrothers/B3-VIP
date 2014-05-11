@@ -79,5 +79,3 @@ class VipPlugin(b3.plugin.Plugin):
             if targetClient:
                 self._currentVip = targetClient.cid
                 targetClient.message('You are the VIP')
-            else:
-                client.message('Unable to find %s'%(arg))

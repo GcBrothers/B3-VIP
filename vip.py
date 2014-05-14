@@ -1,3 +1,6 @@
+__version__ = '1.0'
+__author__ = 'GcBrothers'
+
 import b3
 import b3.plugin
 import b3.events
@@ -10,6 +13,7 @@ class VipPlugin(b3.plugin.Plugin):
     _damager = None
     _damaged = None
     _random = False
+    _all = False
     def OnStartup(self):
         self.registerEvent(self.console.getEventID('EVT_CLIENT_DAMAGE'), self.onDamage)
         self.registerEvent(self.console.getEventID('EVT_CLIENT_KILL'), self.onKill)
@@ -34,8 +38,11 @@ class VipPlugin(b3.plugin.Plugin):
 
     def checkIfVip(self):
         self.console.say('Attacker %s Attacked %s'%(self._damager.name, self._damaged.name)) #debug message
-        if self._currentVip == self._damaged.cid:
-            self.console.write('slap %s'%(self._damager.cid)) #slap if you hit the VIP
+        if self._all == False:
+            if self._currentVip == self._damaged.cid:
+                self.console.write('slap %s'%(self._damager.cid)) #slap if you hit the VIP
+        else:
+            self.console.write('slap %s'%(self._damager.cid)) #slap anyone if all mode is enabled
 
     def chooseRandomVip(self): #to choose another people when dead or random mode launched
         clients = self.console.clients.getList()
@@ -62,19 +69,26 @@ class VipPlugin(b3.plugin.Plugin):
 
 # Command
 
-    def cmd_vip(self, data, client, cmd = None) #when you configure vip mode
+    def cmd_vip(self, data, client, cmd = None): #when you configure vip mode
         arg = self._adminPlugin.parseUserCmd(data)
         if not arg:
-            client.message('^7 Arguments : Client, off or random') #help message if no arguments
+            client.message('^7 Arguments : Client, off, random or all') #help message if no arguments
         #argument = self.getReason(args)
         if arg == 'off': #Turns off vip mode
             self._random = False
+            self._all = False
             self._currentVip = -1
         elif arg == 'random': #set random mode
             self._random = True
+            self._all = False
             self.chooseRandomVip()
+        elif arg == 'all':
+            self._random = False
+            self._all = True
+            self._currentVip = -1
         else: #If a player is chosen to be VIP
             self._random = False
+            self._all = False
             targetClient = self._adminPlugin.findClientPrompt(arg, client)
             if targetClient:
                 self._currentVip = targetClient.cid

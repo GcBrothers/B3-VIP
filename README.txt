@@ -6,6 +6,6 @@ You can use 3 modes : !vip <client> : you select a player by telling b3 his name
                       !vip all : everyone is protected (and gets slapped too)
 (note that you can turn off the plugin too by saying !vip off)
 
-Installation : copy vip.py and conf folder into your b3 extplugins folder
+Installation : copy vip.py and conf folder into your b3 extplugins folder; update the b3.xml file : in plugins add <plugin name="proxyfilter" config="@b3/extplugins/conf/vip.ini" />
 
 Have fun !

@@ -37,7 +37,7 @@ class VipPlugin(b3.plugin.Plugin):
                     self._adminPlugin.registerCommand(self, cmd, level, func, alias)
 
     def checkIfVip(self):
-        self.console.say('Attacker %s Attacked %s'%(self._damager.name, self._damaged.name)) #debug message
+        #self.console.say('Attacker %s Attacked %s'%(self._damager.name, self._damaged.name)) #debug message
         if self._all == False:
             if self._currentVip == self._damaged.cid:
                 self.console.write('slap %s'%(self._damager.cid)) #slap if you hit the VIP
